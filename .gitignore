@@ -12,3 +12,5 @@
 *.out
 .idea
 protogen
+_test/test.pb.go
+_test/mapping.go

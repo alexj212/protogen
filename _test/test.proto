@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package _test;
+option go_package = "_test";
+
+
+enum Packet {
+    cmd_unknown_k = 0;
+
+    EchoEventId = 1; //@@export@@
+    EchoResponseEventId = 2; //@@export@@
+}
+
+
+message EchoEvent {
+    string message = 1;
+}
+
+message EchoResponseEvent {
+    string message = 1;
+}
+

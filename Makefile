@@ -59,6 +59,9 @@ build_app:
 
 protogen: build_info ## build broadcastclient binary in bin dir
 	make BIN_NAME=protogen APP_PATH=github.com/alexj212/protogen build_app
+	@echo ''
+	@echo 'You can now copy the binary `protogen` into the system path'
+	@echo ''
 
 
 
@@ -75,3 +78,6 @@ clean_protogen: ## clean protogen
 
 
 
+test: ## clean protogen
+	protoc  --go_out=./   ./_test/test.proto
+	./protogen ./_test/test.proto Packet ./_test/mapping.go

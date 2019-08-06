@@ -1,7 +1,10 @@
 ##ProtoGen
 
-###### ProtoGen is a utility to generate mapping functions that easily allow encoding a ProtoBuf structure into a []byte.
+###### ProtoGen is a utility to generate mapping functions that easily allow marshalling ProtoBuf structure(s) into a []byte.
 
+ProtoBuf structures are assigned a uint32 value. The `protogen` tool will generate code that will aid in marshalling from a struct to bytes. It will encode 4 bytes for the proto message id, followed by the bytes from marshalled protobuf struct. 
+
+Given the bytes, it will use 4 bytes to extract the message id, then it will attempt to unmarshal the remaining bytes into the associated structure. 
 
 The definition of a protocol file should contain an enum with definitions of packet ids. The enum value names should map to various messages defined in the protofile. Value names should match proto messages with the suffix 'Id'. Also the field name should have a comment `//@@export@@`
 
@@ -64,3 +67,9 @@ or
 
 make protogen
 ```   
+
+
+## Example
+There is a sample proto file `test.proto` in the _test directory. If you run `make test` it will generate the golang code from the proto file. It will also run the protogen tool to generate the utilities for marshalling / unmarshalling from go structs to bytes and vice versa.
+
+   
