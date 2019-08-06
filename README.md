@@ -55,3 +55,12 @@ func (x Packet) Value() uint32 {...}
 ```
 
   
+
+## Building
+```bash 
+go build -o ~/bin/protogen .
+
+or 
+
+make protogen
+```   
