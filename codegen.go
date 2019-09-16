@@ -1,46 +1,49 @@
 package main
 
 import (
-    "bytes"
-    "fmt"
-    "go/format"
-    "text/template"
+	"bytes"
+	"github.com/pkg/errors"
+	"go/format"
+	"text/template"
 )
 
 type Packet struct {
-    PacketName string
-    PacketId   string
+	PacketName string
+	PacketId   string
 }
 
 type MessageMapper struct {
-    Date    string
-    ParserName    string
-    ProtoFile    string
-    PacketEnum    string
-    PackageName   string
-    GoPackageName string
-    EventList     []*Packet
+	Date          string
+	ParserName    string
+	ProtoFile     string
+	PacketEnum    string
+	PackageName   string
+	GoPackageName string
+	EventList     []*Packet
 }
 
-func Generate(d *MessageMapper) ([]byte, error) {
-    t := template.Must(template.New("queue").Parse(messageMapperTemplate))
+func Generate(d *MessageMapper, formatCode bool) ([]byte, error) {
+	t := template.Must(template.New("mapping").Parse(messageMapperTemplate))
 
-    var tpl bytes.Buffer
+	var tpl bytes.Buffer
+	var err error
 
-    if err := t.Execute(&tpl, d); err != nil {
-        fmt.Printf("Error: %v\n", err)
-        return nil, err
-    }
+	if err = t.Execute(&tpl, d); err != nil {
+		return nil, errors.Wrap(err, "unable to execute template")
+	}
 
-    // var config = printer.Config{Mode: printer.UseSpaces | printer.TabIndent, Tabwidth: 8}
+	// var config = printer.Config{Mode: printer.UseSpaces | printer.TabIndent, Tabwidth: 8}
 
-    content, err := format.Source(tpl.Bytes())
-    if err != nil {
-        fmt.Printf("Error: %v\n", err)
-        return nil, err
-    }
+	content := tpl.Bytes()
 
-    return content, err
+	if formatCode {
+		content, err = format.Source(tpl.Bytes())
+		if err != nil {
+			return nil, errors.Wrap(err, "unable to format source")
+		}
+	}
+
+	return content, err
 }
 
 var messageMapperTemplate = `
@@ -77,11 +80,6 @@ type mapper struct{}
 
 func (mapper) MapIDToProto(method uint32) (interface{}, error)     { return MapIDToProto(method) }
 func (mapper) MapProtoMessageToID(msg interface{}) (uint32, error) { return MapProtoMessageToID(msg) }
-
-
-
-
-
 
 
 // MapIDToProto maps all possible packet IDs to their corresponding packet types
