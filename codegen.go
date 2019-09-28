@@ -69,21 +69,25 @@ import (
 )
 
 
-var Mapper ProtobufMessageMapper = &mapper{}
+var Codec ProtobufCodec = &codec{}
 
-type ProtobufMessageMapper interface {
-    MapIDToProto(method uint32) (interface{}, error)
-    MapProtoMessageToID(msg interface{}) (uint32, error)
+type ProtobufCodec interface {
+    MapIDToProto(method uint32) (proto.Message, error)
+    MapProtoMessageToID(msg proto.Message) (uint32, error)
+    EncodeMessage(param proto.Message) ([]byte, uint32, error)
+    Parse(data []byte) (proto.Message, uint32, error)
 }
 
-type mapper struct{}
+type codec struct{}
 
-func (mapper) MapIDToProto(method uint32) (interface{}, error)     { return MapIDToProto(method) }
-func (mapper) MapProtoMessageToID(msg interface{}) (uint32, error) { return MapProtoMessageToID(msg) }
+func (codec) MapIDToProto(method uint32) (proto.Message, error)     { return MapIDToProto(method) }
+func (codec) MapProtoMessageToID(msg proto.Message) (uint32, error) { return MapProtoMessageToID(msg) }
+func (codec) EncodeMessage(param proto.Message) ([]byte, uint32, error) { return EncodeMessage(param) }
+func (codec) Parse(data []byte) (proto.Message, uint32, error) { return Parse(data) }
 
 
 // MapIDToProto maps all possible packet IDs to their corresponding packet types
-func MapIDToProto(method uint32) (interface{}, error) {
+func MapIDToProto(method uint32) (proto.Message, error) {
     switch Packet(method) {
 
 {{range $val := .EventList}}
@@ -97,7 +101,7 @@ func MapIDToProto(method uint32) (interface{}, error) {
 
 
 // MapIDToProto maps all possible packet IDs to their corresponding packet types
-func MapProtoMessageToID(msg interface{}) (uint32, error) {
+func MapProtoMessageToID(msg proto.Message) (uint32, error) {
     switch msg.(type) {
 
 {{range $val := .EventList}}
@@ -110,7 +114,7 @@ func MapProtoMessageToID(msg interface{}) (uint32, error) {
     return 0, errors.New("unknown protocol method received")
 }
 
-func Parse(data []byte) (interface{}, uint32, error) {
+func Parse(data []byte) (proto.Message, uint32, error) {
     if len(data) < 4 {
         loge.Error("Receiving invalid packet")
         return nil, 0, errors.New("received invalid packet len")
@@ -134,7 +138,7 @@ func Parse(data []byte) (interface{}, uint32, error) {
     return msg, packetID, nil
 }
 
-func EncodeMessage(param interface{}) ([]byte, uint32, error) {
+func EncodeMessage(param proto.Message) ([]byte, uint32, error) {
     if param == nil {
         return nil, 0, errors.New("nil packet is not allowed")
     }
