@@ -7,8 +7,8 @@ option go_package = "_test";
 enum Packet {
     cmd_unknown_k = 0;
 
-    EchoEventId = 1; //@@export@@
-    EchoResponseEventId = 2; //@@export@@
+    EchoEventId = 1; //@@protogen:EchoEvent@@
+    EchoResponseEventId = 2; //@@protogen:EchoResponseEvent@@
 }
 
 

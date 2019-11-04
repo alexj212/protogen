@@ -16,6 +16,7 @@ type MessageMapper struct {
 	Date          string
 	ParserName    string
 	ProtoFile     string
+	CommandLine   string
 	PacketEnum    string
 	PackageName   string
 	GoPackageName string
@@ -54,7 +55,8 @@ var messageMapperTemplate = `
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------        
 // File Generated: {{.Date}}
-// Source: {{.ProtoFile}}
+// Source        : {{.ProtoFile}}
+// Command Line  : {{.CommandLine}}
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
@@ -88,7 +90,7 @@ func (codec) Parse(data []byte) (proto.Message, uint32, error) { return Parse(da
 
 // MapIDToProto maps all possible packet IDs to their corresponding packet types
 func MapIDToProto(method uint32) (proto.Message, error) {
-    switch Packet(method) {
+    switch {{.PacketEnum}}(method) {
 
 {{range $val := .EventList}}
     case {{$val.PacketId}}:

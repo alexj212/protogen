@@ -30,19 +30,23 @@ func usage() {
 
 func main() {
 	var formatCode bool
+	var fieldPrefix string
 
 	flag.BoolVar(&formatCode, "format", false, "Format code after generating")
+	flag.StringVar(&fieldPrefix, "fieldPrefix", "", "Field Prefix to use - defaults to enumName")
 	flag.Parse()
 
-	if len(os.Args) != 4 {
+	if len(flag.Args()) != 3 {
 		usage()
 		os.Exit(1)
 		return
 	}
 
-	protoFile := os.Args[1]
-	enumName := os.Args[2]
-	goFile := os.Args[3]
+
+
+	protoFile := flag.Args()[0]
+	enumName := flag.Args()[1]
+	goFile := flag.Args()[2]
 
 	if !fileExists(protoFile) {
 		fmt.Fprintf(os.Stderr, "Protobuf file %v does not exist\n", protoFile)
@@ -50,7 +54,11 @@ func main() {
 		return
 	}
 
-	parsed, err := Parse(protoFile, enumName)
+	if fieldPrefix == ""{
+		fieldPrefix = enumName
+	}
+
+	parsed, err := Parse(protoFile, enumName, fieldPrefix)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing: %v\n", err)
 		os.Exit(1)

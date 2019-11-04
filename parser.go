@@ -4,13 +4,14 @@ import "C"
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/emicklei/proto"
 )
 
-func Parse(file string, enumName string) (*MessageMapper, error) {
+func Parse(file string, enumName, fieldPrefix string) (*MessageMapper, error) {
 	reader, err := os.Open(file)
 	if err != nil {
 		return nil, err
@@ -28,6 +29,7 @@ func Parse(file string, enumName string) (*MessageMapper, error) {
 	mapper := &MessageMapper{}
 	mapper.PacketEnum = enumName
 	mapper.ProtoFile = file
+	mapper.CommandLine = strings.Join(os.Args, " ")
 	mapper.ParserName = os.Args[0]
 	currentTime := time.Now()
 	mapper.Date = currentTime.Format("2006.01.02 15:04:05")
@@ -45,10 +47,7 @@ func Parse(file string, enumName string) (*MessageMapper, error) {
 
 	proto.Walk(definition,
 		proto.WithEnum(func(enum *proto.Enum) {
-
-			if enum.Name == enumName {
-				handleEnum(mapper, enum)
-			}
+			handleEnum(mapper, enum, fieldPrefix)
 		}),
 		proto.WithOption(func(enum *proto.Option) {
 			handleOption(mapper, enum)
@@ -78,30 +77,25 @@ func handleOption(mapper *MessageMapper, s *proto.Option) {
 	}
 }
 
-func handleEnum(mapper *MessageMapper, s *proto.Enum) {
+func handleEnum(mapper *MessageMapper, s *proto.Enum, fieldPrefix string) {
 	// fmt.Printf("handleEnum: %v\n", s.Name)
 
 	for _, each := range s.Elements {
 
 		enumField, ok := each.(*proto.EnumField)
-		if ok {
+		if ok && enumField.InlineComment != nil{
 			// fmt.Printf("handleEnum[%v]: %v  %v\n", i, enumField.Name, enumField.Integer, )
-			if enumField.InlineComment != nil {
+			messageName := messageNameExtractor(enumField.InlineComment.Message())
+
+			if messageName != "" {
 				// fmt.Printf("    %v\n", enumField.InlineComment.Message() )
 
-				if strings.Contains(enumField.InlineComment.Message(), "@@export@@") {
+				packetField := &Packet{}
+				packetField.PacketId = fmt.Sprintf("%v_%v", fieldPrefix, enumField.Name)
+				packetField.PacketId = strings.ToUpper(string(packetField.PacketId[0])) + packetField.PacketId[1:]
 
-					packetField := &Packet{}
-					packetField.PacketId = fmt.Sprintf("%v_%v", mapper.PacketEnum, enumField.Name)
-
-					if strings.HasSuffix(enumField.Name, "Id") {
-						packetField.PacketName = enumField.Name[:len(enumField.Name)-2]
-					} else {
-						packetField.PacketName = enumField.Name
-					}
-
-					mapper.EventList = append(mapper.EventList, packetField)
-				}
+				packetField.PacketName = fixupPacketName(messageName)
+				mapper.EventList = append(mapper.EventList, packetField)
 			}
 		}
 	}
@@ -113,4 +107,25 @@ func handleService(mapper *MessageMapper, s *proto.Service) {
 
 func handleMessage(mapper *MessageMapper, m *proto.Message) {
 	// fmt.Printf("handleMessage: %v\n",m.Name)
+}
+
+func fixupPacketName(s string) string {
+
+	pieces := strings.Split(s, "_")
+	var name string
+	for _, piece := range pieces {
+		name = name + strings.Title(piece)
+	}
+	return name
+}
+
+func messageNameExtractor(comment string) string {
+	// comment := "  sddafdasfa   @@protogen:pkt_server_registration@@  // asfasdfasd"
+	re := regexp.MustCompile("@@protogen:(.*?)@@")
+	matches := re.FindStringSubmatch(comment)
+
+	if len(matches) > 1 {
+		return matches[1]
+	}
+	return ""
 }

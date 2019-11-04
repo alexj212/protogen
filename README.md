@@ -6,7 +6,7 @@ ProtoBuf structures are assigned a uint32 value. The `protogen` tool will genera
 
 Given the bytes, it will use 4 bytes to extract the message id, then it will attempt to unmarshal the remaining bytes into the associated structure. 
 
-The definition of a protocol file should contain an enum with definitions of packet ids. The enum value names should map to various messages defined in the protofile. Value names should match proto messages with the suffix 'Id'. Also the field name should have a comment `//@@export@@`
+The definition of a protocol file should contain an enum with definitions of packet ids. The enum value names should map to various messages defined in the protofile. Value names should match proto messages with the suffix 'Id'. Also the field name should have a comment `//@@protogen:SrvReturnCode@@`
 
 A proto file should look like the following   
 
@@ -15,7 +15,7 @@ file: packets.proto
 
 
 enum Packet {
-    SrvReturnCodeId = 0; //@@export@@
+    SrvReturnCodeId = 0; //@@protogen:SrvReturnCode@@
 }
 
 message SrvReturnCode {

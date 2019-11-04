@@ -57,13 +57,14 @@ binaries: protogen ## build binaries in bin dir
 build_app:
 	go build -o ./$(BIN_NAME) -a -ldflags '$(COMPILE_LDFLAGS)' $(APP_PATH)
 
-protogen: build_info ## build broadcastclient binary in bin dir
+protogen: build_info ## build protogen binary in bin dir
 	make BIN_NAME=protogen APP_PATH=github.com/alexj212/protogen build_app
 	@echo ''
 	@echo 'You can now copy the binary `protogen` into the system path'
 	@echo ''
 
-
+install: build_info ## install protogen binary in $GOPATH/bin dir
+	go install github.com/alexj212/protogen
 
 ####################################################################################################################
 ##
