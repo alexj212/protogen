@@ -64,27 +64,43 @@ package {{.GoPackageName}}
 
 import (
     "encoding/binary"
-    "errors"
-
+    
     "github.com/golang/protobuf/proto"
+	"github.com/pkg/errors"
     "github.com/potakhov/loge"
 )
 
-
+// Codec is the exported codec used to marshall a []byte to and from a proto.Message
 var Codec ProtobufCodec = &codec{}
 
+// ProtobufCodec is an interface of functions used to marshall a []byte to and from a proto.Message
 type ProtobufCodec interface {
+
+	// MapIDToProto maps all possible packet IDs to their corresponding packet types struct
     MapIDToProto(method uint32) (proto.Message, error)
+
+	// MapProtoMessageToID maps all possible packet IDs to their corresponding packet types
     MapProtoMessageToID(msg proto.Message) (uint32, error)
+
+	// EncodeMessage takes a proto.Message and will return a []byte, packetID and error. error is nil if no error encountered in conversion.
     EncodeMessage(param proto.Message) ([]byte, uint32, error)
+
+	// Parse takes a []byte and return a mapped proto.Message, packetID and error. error is nil if no error encountered in conversion
     Parse(data []byte) (proto.Message, uint32, error)
 }
 
 type codec struct{}
 
+// MapIDToProto maps all possible packet IDs to their corresponding packet types struct
 func (codec) MapIDToProto(method uint32) (proto.Message, error)     { return MapIDToProto(method) }
+
+// MapProtoMessageToID maps all possible packet IDs to their corresponding packet types
 func (codec) MapProtoMessageToID(msg proto.Message) (uint32, error) { return MapProtoMessageToID(msg) }
+
+// EncodeMessage takes a proto.Message and will return a []byte, packetID and error. error is nil if no error encountered in conversion.
 func (codec) EncodeMessage(param proto.Message) ([]byte, uint32, error) { return EncodeMessage(param) }
+
+// Parse takes a []byte and return a mapped proto.Message, packetID and error. error is nil if no error encountered in conversion
 func (codec) Parse(data []byte) (proto.Message, uint32, error) { return Parse(data) }
 
 
@@ -98,11 +114,11 @@ func MapIDToProto(method uint32) (proto.Message, error) {
 {{end}}
 
     }
-    return nil, errors.New("unknown protocol method received")
+    return nil, errors.Errorf("unknown protocol method received: %v [%b]", method, method)
 }
 
 
-// MapIDToProto maps all possible packet IDs to their corresponding packet types
+// MapProtoMessageToID maps all possible packet IDs to their corresponding packet types
 func MapProtoMessageToID(msg proto.Message) (uint32, error) {
     switch msg.(type) {
 
@@ -113,9 +129,10 @@ func MapProtoMessageToID(msg proto.Message) (uint32, error) {
 
 
     }
-    return 0, errors.New("unknown protocol method received")
+	return 0, errors.Errorf("unknown protocol method received msg: %T", msg) 
 }
 
+// Parse takes a []byte and return a mapped proto.Message, packetID and error. error is nil if no error encountered in conversion
 func Parse(data []byte) (proto.Message, uint32, error) {
     if len(data) < 4 {
         loge.Error("Receiving invalid packet")
@@ -140,6 +157,7 @@ func Parse(data []byte) (proto.Message, uint32, error) {
     return msg, packetID, nil
 }
 
+// EncodeMessage take a proto.Message and will return a []byte, packetID and error. error is nil if no error encountered in conversion.
 func EncodeMessage(param proto.Message) ([]byte, uint32, error) {
     if param == nil {
         return nil, 0, errors.New("nil packet is not allowed")
@@ -163,6 +181,7 @@ func EncodeMessage(param proto.Message) ([]byte, uint32, error) {
     return payload, id, nil
 }
 
+// Value return the packet id as a uint32 value
 func (x {{.PacketEnum}}) Value() uint32 {
     return uint32(x)
 }
