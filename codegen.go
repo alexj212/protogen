@@ -2,9 +2,10 @@ package main
 
 import (
 	"bytes"
-	"github.com/pkg/errors"
 	"go/format"
 	"text/template"
+
+	"github.com/pkg/errors"
 )
 
 type Packet struct {
@@ -65,7 +66,7 @@ package {{.GoPackageName}}
 import (
     "encoding/binary"
     
-    "github.com/golang/protobuf/proto"
+    "google.golang.org/protobuf/proto"
 	"github.com/pkg/errors"
     "github.com/potakhov/loge"
 )
