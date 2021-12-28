@@ -29,6 +29,7 @@ func Parse(file string, enumName, fieldPrefix string) (*MessageMapper, error) {
 	mapper := &MessageMapper{}
 	mapper.PacketEnum = enumName
 	mapper.ProtoFile = file
+	mapper.ProtoGenVer = DATE
 	mapper.CommandLine = strings.Join(os.Args, " ")
 	mapper.ParserName = os.Args[0]
 	currentTime := time.Now()
