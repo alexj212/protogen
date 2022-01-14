@@ -11,6 +11,7 @@ import (
 	"github.com/emicklei/proto"
 )
 
+//Parse read a file and build a MessageMapper
 func Parse(file string, enumName, fieldPrefix string) (*MessageMapper, error) {
 	reader, err := os.Open(file)
 	if err != nil {
@@ -84,7 +85,7 @@ func handleEnum(mapper *MessageMapper, s *proto.Enum, fieldPrefix string) {
 	for _, each := range s.Elements {
 
 		enumField, ok := each.(*proto.EnumField)
-		if ok && enumField.InlineComment != nil{
+		if ok && enumField.InlineComment != nil {
 			// fmt.Printf("handleEnum[%v]: %v  %v\n", i, enumField.Name, enumField.Integer, )
 			messageName := messageNameExtractor(enumField.InlineComment.Message())
 

@@ -8,11 +8,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+//Packet struct to define packets
 type Packet struct {
 	PacketName string
 	PacketId   string
 }
 
+//MessageMapper struct to define mapper
 type MessageMapper struct {
 	Date          string
 	ParserName    string
@@ -25,6 +27,7 @@ type MessageMapper struct {
 	EventList     []*Packet
 }
 
+//Generate build the source code for a message mapper
 func Generate(d *MessageMapper, formatCode bool) ([]byte, error) {
 	t := template.Must(template.New("mapping").Parse(messageMapperTemplate))
 
@@ -108,6 +111,7 @@ func (codec) Parse(data []byte) (interface{}, uint32, error) { return Parse(data
 
 
 // MapIDToProto maps all possible packet IDs to their corresponding packet types
+//gocyclo:ignore
 func MapIDToProto(method uint32) (interface{}, error) {
     switch {{.PacketEnum}}(method) {
 
@@ -122,6 +126,7 @@ func MapIDToProto(method uint32) (interface{}, error) {
 
 
 // MapProtoMessageToID maps all possible packet IDs to their corresponding packet types
+//gocyclo:ignore
 func MapProtoMessageToID(msg interface{}) (uint32, error) {
     switch msg.(type) {
 

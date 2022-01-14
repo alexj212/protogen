@@ -82,3 +82,46 @@ clean_protogen: ## clean protogen
 test: ## clean protogen
 	protoc  --go_out=./   ./_test/test.proto
 	./protogen ./_test/test.proto Packet ./_test/mapping.go
+
+
+
+
+####################################################################################################################
+##
+## Code vetting tools
+##
+####################################################################################################################
+
+
+gotest: ## run tests
+	go test -v $(PROJ_PATH)/...
+
+fmt: ## run fmt on project
+	#go fmt $(PROJ_PATH)/...
+	gofmt -s -d -w -l .
+
+doc: ## launch godoc on port 6060
+	godoc -http=:6060
+
+deps: ## display deps for project
+	go list -f '{{ join .Deps  "\n"}}' . |grep "/" | grep -v $(PROJ_PATH)| grep "\." | sort |uniq
+
+lint: ## run lint on the project
+	golint ./...
+
+staticcheck: ## run staticcheck on the project
+	staticcheck -ignore "$(shell cat .checkignore)" .
+
+vet: ## run go vet on the project
+	go vet .
+
+reportcard: fmt ## run goreportcard-cli
+	goreportcard-cli -v
+
+tools: ## install dependent tools for code analysis
+	go install github.com/gordonklaus/ineffassign@latest
+	go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+	go install golang.org/x/lint/golint@latest
+	go install github.com/gojp/goreportcard/cmd/goreportcard-cli@latest
+	go install github.com/goreleaser/goreleaser@latest
+

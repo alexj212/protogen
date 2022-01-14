@@ -11,10 +11,19 @@ import (
 // go run protogen /home/alexj/projects/rooms/submodules/protocol-definitions/centralserver/csserver.proto Packet /home/alexj/projects/rooms/proto/cs/mapping.go
 //
 
+// DATE info from build
 var DATE string
+
+// LATEST_COMMIT info from build
 var LATEST_COMMIT string
+
+// BUILD_NUMBER info from build
 var BUILD_NUMBER string
+
+// BUILT_ON_IP info from build
 var BUILT_ON_IP string
+
+// BUILT_ON_OS info from build
 var BUILT_ON_OS string
 
 func usage() {
@@ -42,8 +51,6 @@ func main() {
 		return
 	}
 
-
-
 	protoFile := flag.Args()[0]
 	enumName := flag.Args()[1]
 	goFile := flag.Args()[2]
@@ -54,7 +61,7 @@ func main() {
 		return
 	}
 
-	if fieldPrefix == ""{
+	if fieldPrefix == "" {
 		fieldPrefix = enumName
 	}
 

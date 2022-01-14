@@ -5,7 +5,7 @@ import (
 	"regexp"
 )
 
-func main()  {
+func main() {
 	comment := "  sddafdasfa   @@protogen:pkt_server_registration@@  // asfasdfasd"
 	re := regexp.MustCompile("@@protogen:(.*?)@@")
 	matches := re.FindStringSubmatch(comment)
