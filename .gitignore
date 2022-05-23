@@ -14,3 +14,7 @@
 protogen
 _test/test.pb.go
 _test/mapping.go
+go.work
+go.work.sum
+go.sum
+bin
