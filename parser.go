@@ -69,6 +69,10 @@ func Parse(file string, enumName, fieldPrefix string) (*MessageMapper, error) {
 		mapper.GoPackageName = mapper.GoPackageName[strings.LastIndex(mapper.GoPackageName, "/")+1:]
 	}
 
+	if strings.Contains(mapper.GoPackageName, ";") {
+		mapper.GoPackageName = mapper.GoPackageName[strings.LastIndex(mapper.GoPackageName, ";")+1:]
+	}
+
 	return mapper, nil
 }
 
