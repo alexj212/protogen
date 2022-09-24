@@ -2,6 +2,7 @@ export DATE := $(shell date +%Y.%m.%d-%H%M)
 export LATEST_COMMIT := $(shell git log --pretty=format:'%h' -n 1)
 export BRANCH := $(shell git branch |grep -v "no branch"| grep \*|cut -d ' ' -f2)
 export BUILT_ON_IP := $(shell [ $$(uname) = Linux ] && hostname -i || hostname )
+export LIB_VERSION=v0.1.0
 
 export BUILT_ON_OS=$(shell uname -a)
 ifeq ($(BRANCH),)
@@ -124,4 +125,15 @@ tools: ## install dependent tools for code analysis
 	go install golang.org/x/lint/golint@latest
 	go install github.com/gojp/goreportcard/cmd/goreportcard-cli@latest
 	go install github.com/goreleaser/goreleaser@latest
+
+
+
+
+
+publish:
+	git add -A
+	git commit -m "latest version: $(LIB_VERSION)"
+	git tag  "$(LIB_VERSION)"
+	git push origin "$(LIB_VERSION)"
+	git push
 

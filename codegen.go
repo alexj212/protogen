@@ -1,55 +1,55 @@
 package main
 
 import (
-	"bytes"
-	"go/format"
-	"text/template"
+    "bytes"
+    "go/format"
+    "text/template"
 
-	"github.com/pkg/errors"
+    "github.com/pkg/errors"
 )
 
-//Packet struct to define packets
+// Packet struct to define packets
 type Packet struct {
-	PacketName string
-	PacketId   string
+    PacketName string `json:"name"`
+    PacketId   string `json:"id"`
 }
 
-//MessageMapper struct to define mapper
+// MessageMapper struct to define mapper
 type MessageMapper struct {
-	Date          string
-	ParserName    string
-	ProtoFile     string
-	ProtoGenVer   string
-	CommandLine   string
-	PacketEnum    string
-	PackageName   string
-	GoPackageName string
-	EventList     []*Packet
+    Date          string `json:"date"`
+    ParserName    string `json:"-"`
+    ProtoFile     string `json:"filename"`
+    ProtoGenVer   string `json:"version"`
+    CommandLine   string `json:"command_line"`
+    PacketEnum    string `json:"packet_enum"`
+    PackageName   string `json:"package_name"`
+    GoPackageName string `json:"go_package_name"`
+    EventList     []*Packet
 }
 
-//Generate build the source code for a message mapper
-func Generate(d *MessageMapper, formatCode bool) ([]byte, error) {
-	t := template.Must(template.New("mapping").Parse(messageMapperTemplate))
+// Generate build the source code for a message mapper
+func Generate(codeTemplate string, d *MessageMapper, formatCode bool) ([]byte, error) {
+    t := template.Must(template.New("mapping").Parse(codeTemplate))
 
-	var tpl bytes.Buffer
-	var err error
+    var tpl bytes.Buffer
+    var err error
 
-	if err = t.Execute(&tpl, d); err != nil {
-		return nil, errors.Wrap(err, "unable to execute template")
-	}
+    if err = t.Execute(&tpl, d); err != nil {
+        return nil, errors.Wrap(err, "unable to execute template")
+    }
 
-	// var config = printer.Config{Mode: printer.UseSpaces | printer.TabIndent, Tabwidth: 8}
+    // var config = printer.Config{Mode: printer.UseSpaces | printer.TabIndent, Tabwidth: 8}
 
-	content := tpl.Bytes()
+    content := tpl.Bytes()
 
-	if formatCode {
-		content, err = format.Source(tpl.Bytes())
-		if err != nil {
-			return nil, errors.Wrap(err, "unable to format source")
-		}
-	}
+    if formatCode {
+        content, err = format.Source(tpl.Bytes())
+        if err != nil {
+            return nil, errors.Wrap(err, "unable to format source")
+        }
+    }
 
-	return content, err
+    return content, err
 }
 
 var messageMapperTemplate = `
