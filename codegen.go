@@ -1,55 +1,55 @@
 package main
 
 import (
-    "bytes"
-    "go/format"
-    "text/template"
+	"bytes"
+	"go/format"
+	"text/template"
 
-    "github.com/pkg/errors"
+	"github.com/pkg/errors"
 )
 
 // Packet struct to define packets
 type Packet struct {
-    PacketName string `json:"name"`
-    PacketId   string `json:"id"`
+	PacketName string `json:"name"`
+	PacketId   string `json:"id"`
 }
 
 // MessageMapper struct to define mapper
 type MessageMapper struct {
-    Date          string `json:"date"`
-    ParserName    string `json:"-"`
-    ProtoFile     string `json:"filename"`
-    ProtoGenVer   string `json:"version"`
-    CommandLine   string `json:"command_line"`
-    PacketEnum    string `json:"packet_enum"`
-    PackageName   string `json:"package_name"`
-    GoPackageName string `json:"go_package_name"`
-    EventList     []*Packet
+	Date          string `json:"date"`
+	ParserName    string `json:"-"`
+	ProtoFile     string `json:"filename"`
+	ProtoGenVer   string `json:"version"`
+	CommandLine   string `json:"command_line"`
+	PacketEnum    string `json:"packet_enum"`
+	PackageName   string `json:"package_name"`
+	GoPackageName string `json:"go_package_name"`
+	EventList     []*Packet
 }
 
 // Generate build the source code for a message mapper
 func Generate(codeTemplate string, d *MessageMapper, formatCode bool) ([]byte, error) {
-    t := template.Must(template.New("mapping").Parse(codeTemplate))
+	t := template.Must(template.New("mapping").Parse(codeTemplate))
 
-    var tpl bytes.Buffer
-    var err error
+	var tpl bytes.Buffer
+	var err error
 
-    if err = t.Execute(&tpl, d); err != nil {
-        return nil, errors.Wrap(err, "unable to execute template")
-    }
+	if err = t.Execute(&tpl, d); err != nil {
+		return nil, errors.Wrap(err, "unable to execute template")
+	}
 
-    // var config = printer.Config{Mode: printer.UseSpaces | printer.TabIndent, Tabwidth: 8}
+	// var config = printer.Config{Mode: printer.UseSpaces | printer.TabIndent, Tabwidth: 8}
 
-    content := tpl.Bytes()
+	content := tpl.Bytes()
 
-    if formatCode {
-        content, err = format.Source(tpl.Bytes())
-        if err != nil {
-            return nil, errors.Wrap(err, "unable to format source")
-        }
-    }
+	if formatCode {
+		content, err = format.Source(tpl.Bytes())
+		if err != nil {
+			return nil, errors.Wrap(err, "unable to format source")
+		}
+	}
 
-    return content, err
+	return content, err
 }
 
 var messageMapperTemplate = `
@@ -72,42 +72,9 @@ import (
     "encoding/binary"
 
     "github.com/pkg/errors"
-    "github.com/potakhov/loge"
+	"gitlab.paltalk.com/go/utils/netutils/log"
     "google.golang.org/protobuf/proto"
 )
-
-// Codec is the exported codec used to marshall a []byte to and from a proto.Message
-var Codec ProtobufCodec = &codec{}
-
-// ProtobufCodec is an interface of functions used to marshall a []byte to and from a proto.Message
-type ProtobufCodec interface {
-
-	// MapIDToProto maps all possible packet IDs to their corresponding packet types struct
-    MapIDToProto(method uint32) (interface{}, error)
-
-	// MapProtoMessageToID maps all possible packet IDs to their corresponding packet types
-    MapProtoMessageToID(msg interface{}) (uint32, error)
-
-	// EncodeMessage takes a interface{} and will return a []byte, packetID and error. error is nil if no error encountered in conversion.
-    EncodeMessage(param interface{}) ([]byte, uint32, error)
-
-	// Parse takes a []byte and return a mapped interface{}, packetID and error. error is nil if no error encountered in conversion
-    Parse(data []byte) (interface{}, uint32, error)
-}
-
-type codec struct{}
-
-// MapIDToProto maps all possible packet IDs to their corresponding packet types struct
-func (codec) MapIDToProto(method uint32) (interface{}, error)     { return MapIDToProto(method) }
-
-// MapProtoMessageToID maps all possible packet IDs to their corresponding packet types
-func (codec) MapProtoMessageToID(msg interface{}) (uint32, error) { return MapProtoMessageToID(msg) }
-
-// EncodeMessage takes a interface{} and will return a []byte, packetID and error. error is nil if no error encountered in conversion.
-func (codec) EncodeMessage(param interface{}) ([]byte, uint32, error) { return EncodeMessage(param) }
-
-// Parse takes a []byte and return a mapped interface{}, packetID and error. error is nil if no error encountered in conversion
-func (codec) Parse(data []byte) (interface{}, uint32, error) { return Parse(data) }
 
 
 // MapIDToProto maps all possible packet IDs to their corresponding packet types
@@ -143,7 +110,7 @@ func MapProtoMessageToID(msg interface{}) (uint32, error) {
 // Parse takes a []byte and return a mapped interface{}, packetID and error. error is nil if no error encountered in conversion
 func Parse(data []byte) (interface{}, uint32, error) {
     if len(data) < 4 {
-        loge.Error("Receiving invalid packet")
+        log.Error("Receiving invalid packet")
         return nil, 0, errors.New("received invalid packet len")
     }
 
