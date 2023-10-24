@@ -55,7 +55,7 @@ func Generate(codeTemplate string, d *MessageMapper, formatCode bool) ([]byte, e
 var messageMapperTemplate = `
 // ----------------------------------------------------------------------------        
 // ----------------------------------------------------------------------------
-// --- THIS FILE IS PROGRAMMATICALLY GENERATED DO NOT EDIT---------------------
+// --- THIS FILE IS PROGRAMMATICALLY GENERATED DO NOT EDIT----------------------
 // --- ALL EDITS WILL BE LOST - YOU HAVE BEEN WARNED---------------------------
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------        
@@ -72,6 +72,7 @@ import (
     "encoding/binary"
 
     "github.com/pkg/errors"
+	"gitlab.paltalk.com/go/utils/netutils/log"
     "google.golang.org/protobuf/proto"
 )
 
@@ -109,6 +110,7 @@ func MapProtoMessageToID(msg interface{}) (uint32, error) {
 // Parse takes a []byte and return a mapped interface{}, packetID and error. error is nil if no error encountered in conversion
 func Parse(data []byte) (interface{}, uint32, error) {
     if len(data) < 4 {
+        log.Error("Receiving invalid packet")
         return nil, 0, errors.New("received invalid packet len")
     }
 
