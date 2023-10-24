@@ -146,12 +146,20 @@ upgrade:
 
 
 
-
-publish:
+publish: ## tag & push to gitlab
+	@echo "\n\n\n\n\n\nRunning git add\n"
+	echo "$(NEW_TAG)" > "$(VERSION_FILE)"
 	git add -A
-	git commit -m "latest version: $(LIB_VERSION)"
-	git tag  "$(LIB_VERSION)"
-	git push origin "$(LIB_VERSION)"
-	git push
+	@echo "\n\n\n\n\n\nRunning git commit v$(NEW_TAG)\n"
+	git commit -m "latest version: v$(NEW_TAG)"
+
+	@echo "\n\n\n\n\n\nRunning git tag\n"
+	git tag  "v$(NEW_TAG)"
+
+	@echo "\n\n\n\n\n\nRunning git push\n"
+	git push -f origin "v$(NEW_TAG)"
+
+	git push -f
+
 
 
