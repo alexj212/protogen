@@ -72,6 +72,10 @@ import (
     "encoding/binary"
 
     "github.com/pkg/errors"
+<<<<<<< HEAD
+=======
+	"gitlab.paltalk.com/go/utils/netutils/log"
+>>>>>>> ee7c3b02af87dc249d7bbbb365fbd6d05cd891ea
     "google.golang.org/protobuf/proto"
 )
 
@@ -109,6 +113,10 @@ func MapProtoMessageToID(msg interface{}) (uint32, error) {
 // Parse takes a []byte and return a mapped interface{}, packetID and error. error is nil if no error encountered in conversion
 func Parse(data []byte) (interface{}, uint32, error) {
     if len(data) < 4 {
+<<<<<<< HEAD
+=======
+        log.Error("Receiving invalid packet")
+>>>>>>> ee7c3b02af87dc249d7bbbb365fbd6d05cd891ea
         return nil, 0, errors.New("received invalid packet len")
     }
 
