@@ -1,34 +1,43 @@
 export DATE := $(shell date +%Y.%m.%d-%H%M)
 export LATEST_COMMIT := $(shell git log --pretty=format:'%h' -n 1)
 export BRANCH := $(shell git branch |grep -v "no branch"| grep \*|cut -d ' ' -f2)
-export BUILT_ON_IP := $(shell [ $$(uname) = Linux ] && hostname -i || hostname )
-export LIB_VERSION=v0.1.1
+export GIT_REPO := $(shell git config --get remote.origin.url  2> /dev/null)
+export BIN_DIR=./bin
 
-export BUILT_ON_OS=$(shell uname -a)
+
+export VERSION_FILE   := version.txt
+export TAG     := $(shell [ -f "$(VERSION_FILE)" ] && cat "$(VERSION_FILE)" || echo '0.5.46')
+export VERMAJMIN      := $(subst ., ,$(TAG))
+export VERSION        := $(word 1,$(VERMAJMIN))
+export MAJOR          := $(word 2,$(VERMAJMIN))
+export MINOR          := $(word 3,$(VERMAJMIN))
+export NEW_MINOR      := $(shell expr "$(MINOR)" + 1)
+export NEW_TAG := $(VERSION).$(MAJOR).$(NEW_MINOR)
+
+
+export PROTOC2=protoc-2.6.1
+export PROTOC3=protoc
+
 ifeq ($(BRANCH),)
 BRANCH := master
 endif
 
-export COMMIT_CNT := $(shell git rev-list HEAD | wc -l | sed 's/ //g' )
-export BUILD_NUMBER := ${BRANCH}-${COMMIT_CNT}
 export COMPILE_LDFLAGS=-s -X "main.BuildDate=${DATE}" \
                           -X "main.LatestCommit=${LATEST_COMMIT}" \
-                          -X "main.BuildNumber=${BUILD_NUMBER}" \
-                          -X "main.BuiltOnIp=${BUILT_ON_IP}" \
-                          -X "main.BuiltOnOs=${BUILT_ON_OS}"
+						  -X "main.Version=${NEW_TAG}"\
+						  -X "main.GitRepo=${GIT_REPO}" \
+                          -X "main.GitBranch=${BRANCH}"
 
-build_info: ## Build the container
+
+
+build_info:  ## Build the container
 	@echo ''
 	@echo '---------------------------------------------------------'
-	@echo 'BUILT_ON_IP      $(BUILT_ON_IP)'
-	@echo 'BUILT_ON_OS      $(BUILT_ON_OS)'
-	@echo 'DATE             $(DATE)'
-	@echo 'LATEST_COMMIT    $(LATEST_COMMIT)'
-	@echo 'BRANCH           $(BRANCH)'
-	@echo 'COMMIT_CNT       $(COMMIT_CNT)'
-	@echo 'BUILD_NUMBER     $(BUILD_NUMBER)'
-	@echo 'COMPILE_LDFLAGS  $(COMPILE_LDFLAGS)'
-	@echo 'PATH             $(PATH)'
+	@echo 'DATE              $(DATE)'
+	@echo 'LATEST_COMMIT     $(LATEST_COMMIT)'
+	@echo 'BRANCH            $(BRANCH)'
+	@echo 'COMPILE_LDFLAGS   $(COMPILE_LDFLAGS)'
+	@echo 'TAG              $(TAG)'
 	@echo '---------------------------------------------------------'
 	@echo ''
 
