@@ -155,7 +155,7 @@ func EncodeMessage(param interface{}) ([]byte, uint32, error) {
 }
 
 // Value return the packet id as a uint32 value
-func (x {{.Packet_PacketType}}) Value() uint32 {
+func (x {{.PacketEnum}}) Value() uint32 {
     return uint32(x)
 }
 
